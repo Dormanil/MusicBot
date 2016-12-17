@@ -1503,6 +1503,15 @@ class MusicBot(discord.Client):
                 raise exceptions.CommandError(
                     'Unreasonable volume provided: {}%. Provide a value between 1 and 100.'.format(new_volume), expire_in=20)
 
+    async def cmd_kyuu(self, channel, player):
+        """
+        Usage:
+            {command_prefix}kyuu
+
+        Prints the current song queue.
+        """
+        return cmd_queue(self, channel, player)
+
     async def cmd_queue(self, channel, player):
         """
         Usage:
