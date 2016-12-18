@@ -1257,6 +1257,37 @@ class MusicBot(discord.Client):
                 await self.safe_delete_message(response_message)
 
         return Response("Oh well :frowning:", delete_after=30)
+    
+    async def cmd_nya(self, player, channel, server, message):
+        """
+        Usage:
+            {command_prefix}nya
+
+        Displays the song that is _nyaw_ playing in chat.
+        """
+
+        if player.current_entry:
+            if self.server_specific_data[server]['last_np_msg']:
+                await self.safe_delete_message(self.server_specific_data[server]['last_np_msg'])
+                self.server_specific_data[server]['last_np_msg'] = None
+
+            song_progress = str(timedelta(seconds=player.progress)).lstrip('0').lstrip(':')
+            song_total = str(timedelta(seconds=player.current_entry.duration)).lstrip('0').lstrip(':')
+            prog_str = '`[%s/%s]`' % (song_progress, song_total)
+
+            if player.current_entry.meta.get('channel', False) and player.current_entry.meta.get('author', False):
+                np_text = "Now Playing: **%s** added by **%s** %s\n" % (
+                    player.current_entry.title, player.current_entry.meta['author'].name, prog_str)
+            else:
+                np_text = "Now Playing: **%s** %s\n" % (player.current_entry.title, prog_str)
+
+            self.server_specific_data[server]['last_np_msg'] = await self.safe_send_message(channel, np_text)
+            await self._manual_delete_check(message)
+        else:
+            return Response(
+                'There are no songs queued! Queue something with {}play.'.format(self.config.command_prefix),
+                delete_after=30
+            )
 
     async def cmd_np(self, player, channel, server, message):
         """
